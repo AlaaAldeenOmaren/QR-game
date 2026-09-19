@@ -28,3 +28,52 @@ Route::middleware('auth')->group(function (): void {
         'index',
     ])->name('dashboard');
 
+    Route::get('/beheer/vragen', [
+        OrganizerQuestionController::class,
+        'index',
+    ])->name('organizer.questions.index');
+
+    Route::get('/beheer/spellen/{game}/vragen/nieuw', [
+        OrganizerQuestionController::class,
+        'create',
+    ])->name('organizer.questions.create');
+
+    Route::post('/beheer/spellen/{game}/vragen', [
+        OrganizerQuestionController::class,
+        'store',
+    ])->name('organizer.questions.store');
+
+    Route::get('/beheer/spellen/{game}/vragen/{question}/bewerken', [
+        OrganizerQuestionController::class,
+        'edit',
+    ])->scopeBindings()->name('organizer.questions.edit');
+
+    Route::put('/beheer/spellen/{game}/vragen/{question}', [
+        OrganizerQuestionController::class,
+        'update',
+    ])->scopeBindings()->name('organizer.questions.update');
+    Route::post('/beheer/uitloggen', [
+        OrganizerAuthController::class,
+        'destroy',
+    ])->name('logout');
+});
+
+Route::get('/spelen/vragen/{question:qr_token}', [
+    StudentQuestionController::class,
+    'show',
+])->name('student.questions.show');
+
+Route::post('/spelen/vragen/{question:qr_token}/deelnemen', [
+    StudentQuestionController::class,
+    'join',
+])->middleware('throttle:10,1')->name('student.join.store');
+
+Route::post('/spelen/vragen/{question:qr_token}/antwoord', [
+    StudentQuestionController::class,
+    'storeAnswer',
+])->middleware('throttle:20,1')->name('student.answers.store');
+
+Route::get('/spelen/vragen/{question:qr_token}/antwoord', [
+    StudentQuestionController::class,
+    'result',
+])->name('student.answers.show');
