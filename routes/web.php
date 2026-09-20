@@ -62,6 +62,22 @@ Route::middleware('auth')->group(function (): void {
         OrganizerQuestionController::class,
         'update',
     ])->scopeBindings()->name('organizer.questions.update');
+
+    Route::get('/beheer/nakijken', [
+        OrganizerGradingController::class,
+        'index',
+    ])->name('organizer.grading.index');
+
+    Route::get('/beheer/spellen/{game}/antwoorden/{answer}/beoordelen', [
+        OrganizerGradingController::class,
+        'edit',
+    ])->scopeBindings()->name('organizer.grading.edit');
+
+    Route::put('/beheer/spellen/{game}/antwoorden/{answer}/beoordelen', [
+        OrganizerGradingController::class,
+        'update',
+    ])->scopeBindings()->name('organizer.grading.update');
+
     Route::post('/beheer/uitloggen', [
         OrganizerAuthController::class,
         'destroy',
