@@ -7,6 +7,7 @@ use App\Http\Controllers\GameStateController;
 use App\Http\Controllers\OrganizerQuestionController;
 use App\Http\Controllers\StudentQuestionController;
 use App\Http\Controllers\OrganizerGradingController;
+use App\Http\Controllers\OrganizerResultsController;
 
 Route::view('/', 'home')->name('home');
 
@@ -82,6 +83,16 @@ Route::middleware('auth')->group(function (): void {
         OrganizerAuthController::class,
         'destroy',
     ])->name('logout');
+
+    Route::get('/beheer/resultaten', [
+        OrganizerResultsController::class,
+        'index',
+    ])->name('organizer.results.index');
+
+    Route::get('/beheer/spellen/{game}/resultaten/export', [
+        OrganizerResultsController::class,
+        'export',
+    ])->name('organizer.results.export');
 });
 
 Route::get('/spelen/vragen/{question:qr_token}', [
