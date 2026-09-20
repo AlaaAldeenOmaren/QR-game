@@ -28,6 +28,16 @@ Route::middleware('auth')->group(function (): void {
         'index',
     ])->name('dashboard');
 
+    Route::get('/beheer/spellen/{game}/stoppen', [
+        GameStateController::class,
+        'confirmStop',
+    ])->name('organizer.games.stop.confirm');
+
+    Route::post('/beheer/spellen/{game}/status', [
+        GameStateController::class,
+        'update',
+    ])->name('organizer.games.state');
+
     Route::get('/beheer/vragen', [
         OrganizerQuestionController::class,
         'index',

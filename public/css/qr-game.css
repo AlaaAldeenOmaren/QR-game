@@ -418,6 +418,28 @@ a.sidebar-link:hover,
         grid-template-columns: 1fr;
     }
 }
+
+.game-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.game-actions form,
+.confirmation-actions form {
+    margin: 0;
+}
+
+.button-danger {
+    background: #b42318;
+}
+
+.button-danger:hover {
+    background: #912018;
+}
+
 .button-secondary {
     background: #eef2f7;
     color: var(--text);
@@ -434,6 +456,18 @@ a.sidebar-link:hover,
     color: #667085;
     cursor: not-allowed;
 }
+
+.confirmation-panel {
+    max-width: 600px;
+    margin-inline: auto;
+}
+
+.confirmation-actions {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+}
+
 .notice {
     margin-bottom: 24px;
     padding: 16px 20px;
@@ -457,6 +491,18 @@ a.sidebar-link:hover,
     margin: 0;
     padding-left: 20px;
 }
+
+@media (max-width: 700px) {
+    .game-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .game-actions form {
+        width: 100%;
+    }
+}
+
 .page-heading {
     display: flex;
     justify-content: space-between;
