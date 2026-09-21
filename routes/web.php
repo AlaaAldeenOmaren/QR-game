@@ -8,6 +8,7 @@ use App\Http\Controllers\OrganizerQuestionController;
 use App\Http\Controllers\StudentQuestionController;
 use App\Http\Controllers\OrganizerGradingController;
 use App\Http\Controllers\OrganizerResultsController;
+use App\Http\Controllers\StudentProgressController;
 
 Route::view('/', 'home')->name('home');
 
@@ -114,3 +115,21 @@ Route::get('/spelen/vragen/{question:qr_token}/antwoord', [
     StudentQuestionController::class,
     'result',
 ])->name('student.answers.show');
+
+Route::get('/spelen/{game}', [
+    StudentProgressController::class,
+    'play',
+])->whereNumber('game')->name('student.games.show');
+
+Route::get('/spelen/{game}/voortgang', [
+    StudentProgressController::class,
+    'show',
+])->whereNumber('game')->name('student.progress.show');
+
+Route::post('/spelen/{game}/voortgang', [
+    StudentProgressController::class,
+    'resume',
+])
+    ->whereNumber('game')
+    ->middleware('throttle:10,1')
+    ->name('student.progress.resume');

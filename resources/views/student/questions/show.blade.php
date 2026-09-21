@@ -2,6 +2,8 @@
 
 @section('content')
     <div class="player-shell">
+        @include('student.partials.nav')
+
         @if ($errors->any())
             <div class="notice notice-error" role="alert">
                 <ul>

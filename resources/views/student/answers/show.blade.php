@@ -13,6 +13,8 @@
     @endphp
 
     <div class="player-shell">
+        @include('student.partials.nav')
+
         <section class="panel">
             <p class="eyebrow">{{ $game->name }}</p>
 
@@ -84,20 +86,15 @@
 
             <div class="form-actions">
                 @if ($isPending)
-                    <a
-                        href="{{ route('student.answers.show', [
-                            'question' => $question->qr_token,
-                        ]) }}"
-                        class="button"
-                    >
+                    <a href="{{ route('student.answers.show', [
+                        'question' => $question->qr_token,
+                    ]) }}"
+                        class="button">
                         Beoordeling controleren
                     </a>
                 @endif
 
-                <a
-                    href="{{ route('home') }}"
-                    class="button button-secondary"
-                >
+                <a href="{{ route('home') }}" class="button button-secondary">
                     Terug naar home
                 </a>
             </div>
