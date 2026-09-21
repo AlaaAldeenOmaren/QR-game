@@ -874,3 +874,53 @@ a.sidebar-link:hover,
         grid-template-columns: 1fr;
     }
 }
+
+/* Ranglijst */
+
+.leaderboard-table {
+    min-width: 0;
+    width: 100%;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 14px 12px;
+}
+
+.leaderboard-table th {
+    text-align: left;
+}
+
+.leaderboard-table th:first-child,
+.leaderboard-table td:first-child,
+.leaderboard-table th:last-child,
+.leaderboard-table td:last-child {
+    white-space: nowrap;
+}
+
+.leaderboard-table th:last-child,
+.leaderboard-table td:last-child {
+    text-align: right;
+}
+
+.leaderboard-table td:nth-child(2) {
+    overflow-wrap: anywhere;
+}
+
+.leaderboard-table tr.is-current td {
+    background: #eaf0ff;
+}
+
+.leaderboard-you {
+    color: var(--primary);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.leaderboard-position {
+    margin: 20px 0;
+    padding: 16px;
+    border: 1px solid #c7d6ff;
+    border-radius: 10px;
+    background: #eaf0ff;
+}

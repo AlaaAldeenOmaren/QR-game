@@ -9,6 +9,7 @@ use App\Http\Controllers\StudentQuestionController;
 use App\Http\Controllers\OrganizerGradingController;
 use App\Http\Controllers\OrganizerResultsController;
 use App\Http\Controllers\StudentProgressController;
+use App\Http\Controllers\StudentLeaderboardController;
 
 Route::view('/', 'home')->name('home');
 
@@ -133,3 +134,10 @@ Route::post('/spelen/{game}/voortgang', [
     ->whereNumber('game')
     ->middleware('throttle:10,1')
     ->name('student.progress.resume');
+
+    Route::get(
+    '/spelen/{game}/ranglijst',
+    [StudentLeaderboardController::class, 'show']
+)
+    ->whereNumber('game')
+    ->name('student.leaderboard.show');
