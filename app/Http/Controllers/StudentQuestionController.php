@@ -19,7 +19,7 @@ class StudentQuestionController extends Controller
     public function show(
         Request $request,
         Question $question
-    ): View|RedirectResponse {
+    ): View {
         $game = $question->game;
         $participant = $this->findParticipant($request, $game);
 
@@ -29,8 +29,10 @@ class StudentQuestionController extends Controller
             ->where('question_id', $question->id)
             ->exists()
         ) {
-            return redirect()->route('student.answers.show', [
-                'question' => $question->qr_token,
+            return view('student.questions.already-answered', [
+                'game' => $game,
+                'question' => $question,
+                'participant' => $participant,
             ]);
         }
 
@@ -131,7 +133,7 @@ class StudentQuestionController extends Controller
                     ->exists();
 
                 if ($alreadyAnswered) {
-                    return redirect()->route('student.answers.show', [
+                    return redirect()->route('student.questions.show', [
                         'question' => $question->qr_token,
                     ]);
                 }
