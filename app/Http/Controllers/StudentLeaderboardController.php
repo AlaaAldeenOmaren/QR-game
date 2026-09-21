@@ -12,6 +12,8 @@ class StudentLeaderboardController extends Controller
 {
     public function show(Request $request, Game $game): View
     {
+        $request->session()->put('student_current_game_id', $game->id);
+
         $participantId = $request->session()->get(
             'student_participants.' . $game->id
         );

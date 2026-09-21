@@ -98,10 +98,10 @@ class StudentProgressController extends Controller
         ]);
     }
 
-    private function findParticipant(
-        Request $request,
-        Game $game
-    ): ?GameParticipant {
+    private function findParticipant(Request $request, Game $game): ?GameParticipant
+    {
+        $request->session()->put('student_current_game_id', $game->id);
+
         $participantId = $request->session()->get(
             'student_participants.' . $game->id
         );

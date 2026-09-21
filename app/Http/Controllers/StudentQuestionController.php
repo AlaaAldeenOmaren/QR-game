@@ -26,8 +26,8 @@ class StudentQuestionController extends Controller
         if (
             $participant &&
             $participant->answers()
-                ->where('question_id', $question->id)
-                ->exists()
+            ->where('question_id', $question->id)
+            ->exists()
         ) {
             return redirect()->route('student.answers.show', [
                 'question' => $question->qr_token,
@@ -257,8 +257,8 @@ class StudentQuestionController extends Controller
 
         $correctAnswer = $question->type === 'multiple_choice'
             ? $question->options()
-                ->where('is_correct', true)
-                ->value('option_text')
+            ->where('is_correct', true)
+            ->value('option_text')
             : null;
 
         $totalPoints = (int) $participant->answers()
@@ -274,10 +274,10 @@ class StudentQuestionController extends Controller
         ]);
     }
 
-    private function findParticipant(
-        Request $request,
-        Game $game
-    ): ?GameParticipant {
+    private function findParticipant(Request $request, Game $game): ?GameParticipant
+    {
+        $request->session()->put('student_current_game_id', $game->id);
+
         $participantId = $request->session()->get(
             'student_participants.' . $game->id
         );
@@ -301,7 +301,7 @@ class StudentQuestionController extends Controller
             $question->max_points,
             $question->options
                 ->sortBy('id')
-                ->map(fn ($option): array => [
+                ->map(fn($option): array => [
                     $option->id,
                     $option->label,
                     $option->option_text,
