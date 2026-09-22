@@ -10,8 +10,9 @@ use App\Http\Controllers\OrganizerGradingController;
 use App\Http\Controllers\OrganizerResultsController;
 use App\Http\Controllers\StudentProgressController;
 use App\Http\Controllers\StudentLeaderboardController;
+use App\Http\Controllers\HomeController;
 
-Route::view('/', 'home')->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/beheer/inloggen', [
@@ -135,7 +136,7 @@ Route::post('/spelen/{game}/voortgang', [
     ->middleware('throttle:10,1')
     ->name('student.progress.resume');
 
-    Route::get(
+Route::get(
     '/spelen/{game}/ranglijst',
     [StudentLeaderboardController::class, 'show']
 )
