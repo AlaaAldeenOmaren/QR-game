@@ -5,7 +5,8 @@
         $state = match ($game->status) {
             'active' => [
                 'title' => 'Klaar voor de volgende vraag?',
-                'description' => 'Open de camera van je telefoon en scan een QR-code van het spel. Tik op de link om de vraag te openen.',
+                'description' =>
+                    'Open de camera van je telefoon en scan een QR-code van het spel. Tik op de link om de vraag te openen.',
             ],
             'not_started' => [
                 'title' => 'Nog niet gestart',
@@ -49,18 +50,19 @@
             <p>{{ $state['description'] }}</p>
 
             <div class="form-actions">
-                <a
-                    href="{{ route('student.progress.show', ['game' => $game]) }}"
-                    class="button"
-                >
+                @if ($game->status === 'finished')
+                    <a href="{{ route('student.leaderboard.show', ['game' => $game]) }}" class="button">
+                        Bekijk ranglijst
+                    </a>
+                @endif
+
+                <a href="{{ route('student.progress.show', ['game' => $game]) }}"
+                    class="button{{ $game->status === 'finished' ? ' button-secondary' : '' }}">
                     Mijn voortgang
                 </a>
 
                 @if (in_array($game->status, ['not_started', 'paused'], true))
-                    <a
-                        href="{{ route('student.games.show', ['game' => $game]) }}"
-                        class="button button-secondary"
-                    >
+                    <a href="{{ route('student.games.show', ['game' => $game]) }}" class="button button-secondary">
                         Opnieuw controleren
                     </a>
                 @endif
