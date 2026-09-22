@@ -924,3 +924,19 @@ a.sidebar-link:hover,
     border-radius: 10px;
     background: #eaf0ff;
 }
+
+#deelnemen:target {
+    outline: 3px solid transparent;
+    outline-offset: 4px;
+    animation: highlight-join 3s ease-out;
+}
+
+@keyframes highlight-join {
+    0%, 60% {
+        outline-color: var(--primary);
+    }
+
+    100% {
+        outline-color: transparent;
+    }
+}

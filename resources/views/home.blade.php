@@ -14,24 +14,82 @@
                 Hoeveel weet jij?
             </p>
 
-            <a class="button" href="#spelregels">
-                Bekijk de spelregels
-            </a>
-        </div>
+            <div class="form-actions">
+                @if ($game && $participant)
+                    @if ($game->status === 'finished')
+                        <a class="button" href="{{ route('student.progress.show', ['game' => $game]) }}">
+                            Mijn voortgang
+                        </a>
+                    @else
+                        <a class="button" href="{{ route('student.games.show', ['game' => $game]) }}">
+                            Verder spelen
+                        </a>
+                    @endif
+                @else
+                    <a class="button" href="#deelnemen">
+                        Hoe doe ik mee?
+                    </a>
+                @endif
 
-        <aside class="panel">
-            <span class="badge">Zo begin je</span>
+                @if ($game)
+                    <a class="button button-secondary" href="{{ route('student.leaderboard.show', ['game' => $game]) }}">
+                        Ranglijst
+                    </a>
+                @endif
 
-            <h2>Klaar om te spelen?</h2>
+                <a class="button button-secondary" href="#spelregels">
+                    Spelregels
+                </a>
+            </div>
 
             <p>
-                Open de camera van je telefoon en scan een QR-code
-                van het spel. Tik op de link om verder te gaan.
+                @auth
+                    <a href="{{ route('dashboard') }}">Naar het dashboard</a>
+                @else
+                    <a href="{{ route('login') }}">Inloggen als organisator</a>
+                @endauth
             </p>
+        </div>
 
-            <p class="note">
-                Houd je studentnummer bij de hand.
-            </p>
+        <aside class="panel" id="deelnemen">
+            <span class="badge">
+                {{ $game ? 'Laatst geopende spel' : 'Zo begin je' }}
+            </span>
+
+            <h2>{{ $game?->name ?? 'Klaar om te spelen?' }}</h2>
+
+            @if ($game && $game->status === 'finished')
+                <p>
+                    Dit spel is afgelopen. Je kunt de ranglijst en
+                    je opgeslagen voortgang nog bekijken.
+                </p>
+            @else
+                <p>
+                    Open de camera van je telefoon en scan een QR-code
+                    van het spel. Tik op de link om verder te gaan.
+                </p>
+
+                <p class="note">
+                    Houd je studentnummer bij de hand.
+                </p>
+            @endif
+
+            @if ($game && $participant)
+                @if ($game->status !== 'finished')
+                    <a class="button button-secondary" href="{{ route('student.progress.show', ['game' => $game]) }}">
+                        Mijn voortgang
+                    </a>
+                @endif
+            @elseif ($game)
+                <p>
+                    Al meegedaan? Gebruik hetzelfde studentnummer
+                    om je opgeslagen voortgang te bekijken.
+                </p>
+
+                <a class="button button-secondary" href="{{ route('student.progress.show', ['game' => $game]) }}">
+                    Deelname hervatten
+                </a>
+            @endif
         </aside>
     </section>
 
