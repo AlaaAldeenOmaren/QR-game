@@ -47,20 +47,15 @@
 
                 <div class="form-actions">
                     @if ($game->status !== 'finished')
-                        <a
-                            href="{{ route('student.questions.show', [
-                                'question' => $question->qr_token,
-                            ]) }}"
-                            class="button"
-                        >
+                        <a href="{{ route('student.questions.show', [
+                            'question' => $question->qr_token,
+                        ]) }}"
+                            class="button">
                             Opnieuw controleren
                         </a>
                     @endif
 
-                    <a
-                        href="{{ route('home') }}"
-                        class="button button-secondary"
-                    >
+                    <a href="{{ route('home') }}" class="button button-secondary">
                         Terug naar home
                     </a>
                 </div>
@@ -69,12 +64,10 @@
 
                 <p>Vul je studentnummer in om verder te gaan.</p>
 
-                <form
-                    method="POST"
+                <form method="POST"
                     action="{{ route('student.join.store', [
                         'question' => $question->qr_token,
-                    ]) }}"
-                >
+                    ]) }}">
                     @csrf
 
                     <div class="form-field">
@@ -82,16 +75,8 @@
                             Studentnummer
                         </label>
 
-                        <input
-                            id="student_number"
-                            name="student_number"
-                            type="text"
-                            inputmode="numeric"
-                            pattern="[0-9]+"
-                            maxlength="20"
-                            value="{{ old('student_number') }}"
-                            required
-                        >
+                        <input id="student_number" name="student_number" type="text" inputmode="numeric" pattern="[0-9]+"
+                            maxlength="20" value="{{ old('student_number') }}" required>
                     </div>
 
                     <button type="submit" class="button button-wide">
@@ -110,19 +95,15 @@
 
                 <p>Maximaal {{ $question->max_points }} punten</p>
 
-                <form
-                    method="POST"
+                <form method="POST"
                     action="{{ route('student.answers.store', [
                         'question' => $question->qr_token,
                     ]) }}"
-                >
+                    data-answer-form
+                    data-draft-key="qr-game-answer:{{ $game->id }}:{{ $participant->id }}:{{ $question->id }}">
                     @csrf
 
-                    <input
-                        type="hidden"
-                        name="question_version"
-                        value="{{ $questionVersion }}"
-                    >
+                    <input type="hidden" name="question_version" value="{{ $questionVersion }}">
 
                     @if ($question->type === 'multiple_choice')
                         <fieldset class="player-options">
@@ -130,13 +111,8 @@
 
                             @foreach ($question->options as $option)
                                 <label class="player-option">
-                                    <input
-                                        type="radio"
-                                        name="selected_option_id"
-                                        value="{{ $option->id }}"
-                                        @checked((string) old('selected_option_id') === (string) $option->id)
-                                        required
-                                    >
+                                    <input type="radio" name="selected_option_id" value="{{ $option->id }}"
+                                        @checked((string) old('selected_option_id') === (string) $option->id) required>
 
                                     <span>
                                         <strong>{{ $option->label }}.</strong>
@@ -149,13 +125,7 @@
                         <div class="form-field">
                             <label for="answer_text">Jouw antwoord</label>
 
-                            <textarea
-                                id="answer_text"
-                                name="answer_text"
-                                rows="5"
-                                maxlength="2000"
-                                required
-                            >{{ old('answer_text') }}</textarea>
+                            <textarea id="answer_text" name="answer_text" rows="5" maxlength="2000" required>{{ old('answer_text') }}</textarea>
                         </div>
                     @endif
 
@@ -166,4 +136,7 @@
             @endif
         </section>
     </div>
+
+    <script src="{{ asset('js/student-answer.js') }}" defer></script>
+
 @endsection

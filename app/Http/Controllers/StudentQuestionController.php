@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 
 class StudentQuestionController extends Controller
 {
@@ -108,8 +109,8 @@ class StudentQuestionController extends Controller
     public function storeAnswer(
         Request $request,
         Question $question
-    ): RedirectResponse {
-        return DB::transaction(
+    ): RedirectResponse|JsonResponse {
+        $response = DB::transaction(
             function () use ($request, $question): RedirectResponse {
                 $game = Game::query()
                     ->whereKey($question->game_id)
@@ -119,13 +120,13 @@ class StudentQuestionController extends Controller
                 $participant = $this->findParticipant($request, $game);
 
                 if (!$participant) {
-                    return redirect()
-                        ->route('student.questions.show', [
+                    throw ValidationException::withMessages([
+                        'student' => 'Vul opnieuw je studentnummer in.',
+                    ])->redirectTo(
+                        route('student.questions.show', [
                             'question' => $question->qr_token,
                         ])
-                        ->withErrors([
-                            'student' => 'Vul opnieuw je studentnummer in.',
-                        ]);
+                    );
                 }
 
                 $alreadyAnswered = $participant->answers()
@@ -139,13 +140,13 @@ class StudentQuestionController extends Controller
                 }
 
                 if ($game->status !== 'active') {
-                    return redirect()
-                        ->route('student.questions.show', [
+                    throw ValidationException::withMessages([
+                        'game' => 'Je antwoord is niet opgeslagen. Het spel is niet actief.',
+                    ])->redirectTo(
+                        route('student.questions.show', [
                             'question' => $question->qr_token,
                         ])
-                        ->withErrors([
-                            'game' => 'Je antwoord is niet opgeslagen. Het spel is niet actief.',
-                        ]);
+                    );
                 }
 
                 $currentQuestion = $game->questions()
@@ -231,6 +232,14 @@ class StudentQuestionController extends Controller
                 ]);
             }
         );
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'redirect' => $response->getTargetUrl(),
+            ]);
+        }
+
+        return $response;
     }
 
     public function result(
