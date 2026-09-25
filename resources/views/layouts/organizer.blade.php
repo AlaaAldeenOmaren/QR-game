@@ -4,6 +4,7 @@
     @php
         $menuItems = [
             'dashboard' => 'Dashboard',
+            'organizer.games.index' => 'Mijn spellen',
             'organizer.questions.index' => 'Vragen',
             'organizer.grading.index' => 'Nakijken',
             'organizer.results.index' => 'Resultaten',

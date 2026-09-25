@@ -11,6 +11,7 @@ use App\Http\Controllers\OrganizerResultsController;
 use App\Http\Controllers\StudentProgressController;
 use App\Http\Controllers\StudentLeaderboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrganizerGameController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -27,6 +28,21 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware('auth')->group(function (): void {
+    Route::get('/beheer/spellen', [
+        OrganizerGameController::class,
+        'index',
+    ])->name('organizer.games.index');
+
+    Route::get('/beheer/spellen/nieuw', [
+        OrganizerGameController::class,
+        'create',
+    ])->name('organizer.games.create');
+
+    Route::post('/beheer/spellen', [
+        OrganizerGameController::class,
+        'store',
+    ])->name('organizer.games.store');
+
     Route::get('/beheer', [
         OrganizerDashboardController::class,
         'index',

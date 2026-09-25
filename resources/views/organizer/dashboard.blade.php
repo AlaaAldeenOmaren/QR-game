@@ -6,6 +6,16 @@
     <header class="dashboard-heading">
         <h1 class="page-title">Dashboard</h1>
         <p>Welkom, {{ auth()->user()->name }}.</p>
+
+        <div class="form-actions">
+            <a href="{{ route('organizer.games.index') }}" class="button button-secondary">
+                Mijn spellen
+            </a>
+
+            <a href="{{ route('organizer.games.create') }}" class="button">
+                Nieuw spel
+            </a>
+        </div>
     </header>
 
     @if ($game)
