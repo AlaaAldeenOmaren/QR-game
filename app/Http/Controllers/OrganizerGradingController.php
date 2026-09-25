@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Answer;
 use App\Models\Game;
+use App\Services\OrganizerGameContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,12 +13,13 @@ use Illuminate\View\View;
 
 class OrganizerGradingController extends Controller
 {
+    public function __construct(private readonly OrganizerGameContext $gameContext)
+    {
+    }
+
     public function index(Request $request): View
     {
-        $game = Game::query()
-            ->where('created_by', $request->user()->getAuthIdentifier())
-            ->latest('id')
-            ->first();
+        $game = $this->gameContext->current($request);
 
         $answers = $game
             ? $game->answers()
@@ -114,7 +116,7 @@ class OrganizerGradingController extends Controller
         });
 
         return redirect()
-            ->route('organizer.grading.index')
+            ->route('organizer.grading.index', ['game' => $game->id])
             ->with('success', 'De beoordeling is opgeslagen.');
     }
 
@@ -125,5 +127,7 @@ class OrganizerGradingController extends Controller
             (string) $request->user()->getAuthIdentifier(),
             404
         );
+
+        $this->gameContext->select($request, $game);
     }
 }

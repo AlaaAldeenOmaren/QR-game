@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Services\OrganizerGameContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,8 +12,14 @@ use Illuminate\View\View;
 
 class GameStateController extends Controller
 {
+    public function __construct(private readonly OrganizerGameContext $gameContext)
+    {
+    }
+
     public function update(Request $request, Game $game): RedirectResponse
     {
+        $this->gameContext->select($request, $game);
+
         $validated = $request->validate([
             'action' => ['required', 'string', 'in:start,pause,resume,stop'],
         ], [
@@ -75,12 +82,14 @@ class GameStateController extends Controller
         };
 
         return redirect()
-            ->route('dashboard')
+            ->route('dashboard', ['game' => $game->id])
             ->with('success', $message);
     }
 
     public function confirmStop(Request $request, Game $game): View|RedirectResponse
     {
+        $this->gameContext->select($request, $game);
+
         abort_unless(
             (string) $game->created_by ===
             (string) $request->user()->getAuthIdentifier(),
@@ -89,7 +98,7 @@ class GameStateController extends Controller
 
         if (! in_array($game->status, ['active', 'paused'], true)) {
             return redirect()
-                ->route('dashboard')
+                ->route('dashboard', ['game' => $game->id])
                 ->withErrors([
                     'game' => 'Dit spel kan vanuit deze status niet worden gestopt.',
                 ]);

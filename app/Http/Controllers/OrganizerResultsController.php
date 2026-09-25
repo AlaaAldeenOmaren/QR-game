@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use App\Models\GameParticipant;
+use App\Services\OrganizerGameContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -12,12 +13,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrganizerResultsController extends Controller
 {
+    public function __construct(private readonly OrganizerGameContext $gameContext)
+    {
+    }
+
     public function index(Request $request): View
     {
-        $game = Game::query()
-            ->where('created_by', $request->user()->getAuthIdentifier())
-            ->latest('id')
-            ->first();
+        $game = $this->gameContext->current($request);
 
         $results = $game
             ? $this->resultsFor($game)

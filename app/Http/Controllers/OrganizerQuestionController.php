@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use App\Models\Question;
-use App\Models\User;
+use App\Services\OrganizerGameContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,14 +15,13 @@ use Endroid\QrCode\Writer\SvgWriter;
 
 class OrganizerQuestionController extends Controller
 {
+    public function __construct(private readonly OrganizerGameContext $gameContext)
+    {
+    }
+
     public function index(Request $request): View
     {
-        /** @var User $organizer */
-        $organizer = $request->user();
-
-        $game = $organizer->createdGames()
-            ->latest('id')
-            ->first();
+        $game = $this->gameContext->current($request);
 
         $questions = $game
             ? $game->questions()->withCount('answers')->orderBy('id')->get()
@@ -40,7 +39,7 @@ class OrganizerQuestionController extends Controller
 
         if (! in_array($game->status, ['not_started', 'paused'], true)) {
             return redirect()
-                ->route('organizer.questions.index')
+                ->route('organizer.questions.index', ['game' => $game->id])
                 ->withErrors([
                     'game' => 'Je kunt alleen vragen toevoegen voordat het spel '
                         . 'start of wanneer het is gepauzeerd.',
@@ -269,5 +268,7 @@ class OrganizerQuestionController extends Controller
                 (string) $request->user()->getAuthIdentifier(),
             404
         );
+
+        $this->gameContext->select($request, $game);
     }
 }
