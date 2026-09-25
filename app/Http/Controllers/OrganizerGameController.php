@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Game;
 use App\Models\User;
+use App\Services\OrganizerGameContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class OrganizerGameController extends Controller
 {
+    public function __construct(private readonly OrganizerGameContext $gameContext)
+    {
+    }
+
     public function index(Request $request): View
     {
         /** @var User $organizer */
@@ -21,12 +27,15 @@ class OrganizerGameController extends Controller
 
         return view('organizer.games.index', [
             'games' => $games,
+            'selectedGame' => $this->gameContext->current($request),
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('organizer.games.create');
+        return view('organizer.games.create', [
+            'selectedGame' => $this->gameContext->current($request),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -42,12 +51,21 @@ class OrganizerGameController extends Controller
         /** @var User $organizer */
         $organizer = $request->user();
 
-        $organizer->createdGames()->create([
+        $game = $organizer->createdGames()->create([
             'name' => $validated['name'],
             'status' => 'not_started',
         ]);
 
-        return redirect()->route('organizer.games.index')
+        $this->gameContext->select($request, $game);
+
+        return redirect()->route('dashboard', ['game' => $game->id])
             ->with('success', 'Het nieuwe spel is aangemaakt.');
+    }
+
+    public function select(Request $request, Game $game): RedirectResponse
+    {
+        $this->gameContext->select($request, $game);
+
+        return redirect()->route('dashboard', ['game' => $game->id]);
     }
 }

@@ -43,6 +43,11 @@ Route::middleware('auth')->group(function (): void {
         'store',
     ])->name('organizer.games.store');
 
+    Route::post('/beheer/spellen/{game}/selecteren', [
+        OrganizerGameController::class,
+        'select',
+    ])->whereNumber('game')->name('organizer.games.select');
+
     Route::get('/beheer', [
         OrganizerDashboardController::class,
         'index',

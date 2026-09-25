@@ -15,9 +15,9 @@
     </header>
 
     <section class="panel" aria-label="Mijn spellen">
-        @forelse ($games as $game)
+        @forelse ($games as $listedGame)
             @php
-                $statusLabel = match ($game->status) {
+                $statusLabel = match ($listedGame->status) {
                     'not_started' => 'Niet gestart',
                     'active' => 'Actief',
                     'paused' => 'Gepauzeerd',
@@ -26,20 +26,34 @@
                 };
             @endphp
 
-            <article aria-labelledby="game-{{ $game->id }}">
-                <h2 id="game-{{ $game->id }}">{{ $game->name }}</h2>
+            <article aria-labelledby="game-{{ $listedGame->id }}">
+                <h2 id="game-{{ $listedGame->id }}">{{ $listedGame->name }}</h2>
+
+                @if ((string) $selectedGame?->id === (string) $listedGame->id)
+                    <p><strong>Geopend in beheer</strong></p>
+                @endif
 
                 <p>
                     Spelstatus:
-                    <span class="game-status" data-status="{{ $game->status }}">
+                    <span class="game-status" data-status="{{ $listedGame->status }}">
                         {{ $statusLabel }}
                     </span>
                 </p>
 
                 <p>
-                    Vragen: <strong>{{ $game->questions_count }}</strong>
-                    · Deelnemers: <strong>{{ $game->participants_count }}</strong>
+                    Vragen: <strong>{{ $listedGame->questions_count }}</strong>
+                    · Deelnemers: <strong>{{ $listedGame->participants_count }}</strong>
                 </p>
+
+                <form method="POST" action="{{ route('organizer.games.select', ['game' => $listedGame]) }}">
+                    @csrf
+
+                    <div class="form-actions">
+                        <button type="submit" class="button" aria-label="Beheer {{ $listedGame->name }}">
+                            Beheren
+                        </button>
+                    </div>
+                </form>
             </article>
 
             @unless ($loop->last)

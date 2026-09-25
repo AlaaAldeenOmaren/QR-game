@@ -9,22 +9,37 @@
             'organizer.grading.index' => 'Nakijken',
             'organizer.results.index' => 'Resultaten',
         ];
+
+        $contextGame = $game ?? $selectedGame ?? null;
+        $gameMenuRoutes = [
+            'dashboard',
+            'organizer.questions.index',
+            'organizer.grading.index',
+            'organizer.results.index',
+        ];
     @endphp
 
     <div class="admin-shell">
         <aside class="admin-sidebar">
             <p class="eyebrow">BEHEER</p>
 
+            @if ($contextGame)
+                <p>Geselecteerd spel:<br><strong>{{ $contextGame->name }}</strong></p>
+            @endif
+
             <nav class="admin-menu" aria-label="Beheermenu">
                 @foreach ($menuItems as $routeName => $label)
                     @php
                         $routePattern = str_replace('.index', '.*', $routeName);
                         $isActive = request()->routeIs($routePattern);
+                        $parameters = $contextGame && in_array($routeName, $gameMenuRoutes, true)
+                            ? ['game' => $contextGame->id]
+                            : [];
                     @endphp
 
                     @if (\Illuminate\Support\Facades\Route::has($routeName))
                         <a
-                            href="{{ route($routeName) }}"
+                            href="{{ route($routeName, $parameters) }}"
                             class="sidebar-link {{ $isActive ? 'is-active' : '' }}"
                             @if ($isActive)
                                 aria-current="page"

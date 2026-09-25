@@ -64,6 +64,12 @@
 
             @if ($game->status === 'not_started' && $game->questions_count < 1)
                 <p>Voeg eerst een vraag toe om het spel te starten.</p>
+
+                <div class="form-actions">
+                    <a href="{{ route('organizer.questions.create', ['game' => $game]) }}" class="button">
+                        Vraag toevoegen
+                    </a>
+                </div>
             @endif
 
             @if ($game->status === 'finished')
