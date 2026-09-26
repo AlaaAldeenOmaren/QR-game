@@ -10,6 +10,10 @@
             'organizer.results.index' => 'Resultaten',
         ];
 
+        if (auth()->user()?->is_admin) {
+            $menuItems['organizer.accounts.index'] = 'Accounts';
+        }
+
         $contextGame = $game ?? $selectedGame ?? null;
         $gameMenuRoutes = [
             'dashboard',

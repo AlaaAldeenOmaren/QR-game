@@ -12,6 +12,8 @@ use App\Http\Controllers\StudentProgressController;
 use App\Http\Controllers\StudentLeaderboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrganizerGameController;
+use App\Http\Controllers\OrganizerAccountController;
+use App\Http\Middleware\EnsureAccountAdministrator;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -28,6 +30,23 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware('auth')->group(function (): void {
+    Route::middleware(EnsureAccountAdministrator::class)->group(function (): void {
+        Route::get('/beheer/accounts', [
+            OrganizerAccountController::class,
+            'index',
+        ])->name('organizer.accounts.index');
+
+        Route::get('/beheer/accounts/nieuw', [
+            OrganizerAccountController::class,
+            'create',
+        ])->name('organizer.accounts.create');
+
+        Route::post('/beheer/accounts', [
+            OrganizerAccountController::class,
+            'store',
+        ])->middleware('throttle:10,1')->name('organizer.accounts.store');
+    });
+
     Route::get('/beheer/spellen', [
         OrganizerGameController::class,
         'index',
