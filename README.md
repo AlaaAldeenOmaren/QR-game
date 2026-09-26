@@ -1,10 +1,8 @@
 # QR-Game
 
-QR-Game is een webapplicatie voor een schoolspel. Studenten scannen QR-codes, beantwoorden vragen en verzamelen punten. De organisator beheert de vragen, beoordeelt open antwoorden en bekijkt de resultaten.
+QR-Game is een webapplicatie voor een schoolspel. Studenten scannen QR-codes, beantwoorden vragen en verzamelen punten. De organisator maakt spellen aan, beheert vragen, beoordeelt open antwoorden en bekijkt de resultaten.
 
 De interface is in het Nederlands. Het project gebruikt Laravel, Blade, MySQL, CSS en JavaScript.
-
-> **Concept voor oplevering:** de beschrijving en gebruiksinstructies zijn uitgewerkt. De installatie van de spelgegevens moet nog worden aangevuld na controle van de overige seeders. De huidige `DatabaseSeeder.php` maakt alleen `Test User` aan en levert nog geen speelbare demo op. Een volledige installatie op een lege database is nog niet gecontroleerd.
 
 ## Functies
 
@@ -21,11 +19,21 @@ De interface is in het Nederlands. Het project gebruikt Laravel, Blade, MySQL, C
 ### Voor de organisator
 
 - Inloggen op het beheergedeelte.
+- Eigen spellen bekijken via **Mijn spellen** en een spel aanmaken via **Nieuw spel**.
+- Een spel kiezen met **Beheren**. Dashboard, vragen, beoordelingen en resultaten horen daarna bij dat spel.
 - Vragen toevoegen en bewerken wanneer de spelstatus dit toestaat.
 - Per vraag een QR-code bekijken en als SVG downloaden.
 - Het spel starten, pauzeren, hervatten en stoppen.
 - Open antwoorden beoordelen met punten en feedback.
 - Resultaten bekijken en downloaden als CSV.
+
+### Voor de beheerder
+
+- Accounts van beheerders en organisatoren bekijken via **Accounts**.
+- Nieuwe organisatoraccounts aanmaken via **Nieuw account**.
+- Zelf spellen aanmaken en beheren, met dezelfde spelregels als een organisator.
+
+Een organisator beheert alleen de eigen spellen. Een beheerder kan accounts aanmaken, maar krijgt daardoor geen toegang tot de spellen van andere organisatoren. Studenten gebruiken een studentnummer en hebben geen organisatoraccount nodig.
 
 ## Benodigdheden
 
@@ -95,13 +103,21 @@ php artisan migrate
 
 Behoud bij een bestaande installatie de huidige `APP_KEY`. Bewaar `.env` buiten Git.
 
-### 3. Spelgegevens klaarzetten — nog te controleren
+### 3. Eerste beheerder aanmaken
 
-De aangeleverde `database/seeders/DatabaseSeeder.php` maakt alleen een gebruiker met de naam `Test User` en het e-mailadres `test@example.com` aan. Deze seeder maakt geen spel, vragen of antwoordopties aan en roept geen andere seeders aan.
+Voer na de migraties dit projectcommando uit. Vervang het voorbeeldadres door het e-mailadres dat je voor het account wilt gebruiken:
 
-Daarom is alleen `php artisan db:seed` op dit moment niet voldoende om dezelfde demo als in de ontwikkelomgeving te krijgen. De juiste seeder en de daarbij horende lokale inloggegevens moeten hier nog worden toegevoegd. De naam of het wachtwoord van een bestaand demo-account mag niet worden afgeleid uit deze standaardseeder.
+```powershell
+php artisan qr-game:create-admin beheerder@example.com
+```
 
-De verdere instructies voor spelen en beheer gaan uit van een database waarin een organisator, een gekoppeld spel en vragen aanwezig zijn.
+Het commando vraagt om een naam, een wachtwoord van minimaal 12 tekens en een herhaling van dat wachtwoord. Het wachtwoord is tijdens het typen niet zichtbaar. Het wordt als hash opgeslagen. Er is geen vast standaardwachtwoord.
+
+Bestaat het e-mailadres al? Dan vraagt het commando eerst of je dat bestaande account beheerder wilt maken. Bij bevestiging blijven het account-ID, het wachtwoord en de eigen spellen behouden. Is het account al beheerder, dan verandert er niets.
+
+Dit commando maakt een account voor QR-Game aan. Het maakt geen e-mailpostvak en verstuurt geen e-mail. Nieuwe organisatoren maak je daarna via **Accounts** aan.
+
+De installatie heeft geen demo-seeders nodig. Spellen en vragen worden via de website aangemaakt. Voer voor deze installatie geen `db:seed` uit.
 
 ### 4. Website starten
 
@@ -113,16 +129,49 @@ Open [http://localhost:8000](http://localhost:8000). Laat de terminal open zolan
 
 Met een bestaande Herd-configuratie kan het project ook via [http://qr-game.test](http://qr-game.test) worden geopend. Gebruik binnen een test steeds hetzelfde adres: `qr-game.test`, `localhost` en het IP-adres hebben afzonderlijke browsersessies.
 
+## Bestaande installatie bijwerken
+
+Bewaar de bestaande `.env` en `APP_KEY` en maak eerst een back-up van de MySQL-database. Nadat de gewijzigde projectbestanden zijn opgehaald, installeer je de afhankelijkheden en voer je alleen de nog niet uitgevoerde migraties uit:
+
+```powershell
+composer install
+php artisan config:clear
+php artisan migrate
+php artisan route:clear
+php artisan view:clear
+```
+
+De migratie `2026_09_26_090000_add_is_admin_to_users_table.php` voegt `is_admin` toe aan `users`, standaard met de waarde `false`. Bestaande accounts blijven organisator. Hun wachtwoorden, spellen en antwoorden worden door deze migratie niet vervangen. Gebruik het commando uit stap 3 om een gekozen account beheerdersrechten te geven.
+
+Gebruik geen `migrate:fresh`, `migrate:refresh` of `migrate:reset` bij het bijwerken van de bestaande database. Die opdrachten kunnen bestaande gegevens verwijderen.
+
 ## Gebruik
+
+### Beheerder: een organisatoraccount aanmaken
+
+1. Log in via `/beheer/inloggen` met het beheerdersaccount.
+2. Open **Accounts** en kies **Nieuw account**.
+3. Vul de naam, een uniek e-mailadres, een wachtwoord van minimaal 12 tekens en de wachtwoordbevestiging in.
+4. Sla het account op. Het nieuwe account krijgt de rol **Organisator**.
+5. Log met dat nieuwe account in om eigen spellen aan te maken.
+
+Een nieuw account begint met een lege lijst spellen. Bestaande spellen blijven bij hun oorspronkelijke organisator. Via het formulier kun je geen extra beheerders aanmaken. Dat kan alleen met het projectcommando uit stap 3.
+
+De pagina's voor accounts zijn beschermd met inloggen en `EnsureAccountAdministrator`. Een gewone organisator hoort bij een rechtstreeks bezoek aan `/beheer/accounts` een 403-melding te krijgen.
 
 ### Organisator
 
-1. Open `/beheer/inloggen` en log in met het voorbereide organisatoraccount.
-2. Open **Vragen**. Voeg vragen toe of bewerk ze zolang dat is toegestaan.
-3. Open de bewerkpagina van een vraag om de QR-code te bekijken of te downloaden.
-4. Start het spel via het **Dashboard**.
-5. Beoordeel open antwoorden via **Nakijken**. Meerkeuzevragen krijgen automatisch punten.
-6. Bekijk **Resultaten** en kies **Download CSV** om de uitslag te exporteren.
+1. Open `/beheer/inloggen` en log in met je organisatoraccount.
+2. Open **Mijn spellen**. Kies **Nieuw spel**, vul een naam in en sla het spel op. Het dashboard van het nieuwe spel opent automatisch.
+3. Voeg via **Vraag toevoegen** of **Vragen** minstens Ã©Ã©n vraag toe. Een nieuw spel zonder vragen kan nog niet starten.
+4. Open de bewerkpagina van een vraag om de QR-code te bekijken of te downloaden.
+5. Start het spel via het **Dashboard**.
+6. Beoordeel open antwoorden via **Nakijken**. Meerkeuzevragen krijgen automatisch punten.
+7. Bekijk **Resultaten** en kies **Download CSV** om de uitslag te exporteren.
+
+Wil je een ander spel beheren? Open **Mijn spellen** en klik bij dat spel op **Beheren**. Controleer de spelnaam in het beheergedeelte. De pagina's voor vragen, beoordelingen en resultaten volgen deze keuze. Een ander spel kiezen verandert de spelstatus niet.
+
+Vragen toevoegen of bewerken kan bij een nog niet gestart of gepauzeerd spel. Een vraag waarop al antwoorden zijn ingediend, kan niet meer worden bewerkt.
 
 ### Student
 
@@ -146,7 +195,7 @@ Opgeslagen antwoorden blijven in de database staan. Na verlies van de browserses
 | Gepauzeerd | Geen nieuwe antwoorden versturen; opgeslagen antwoorden en punten blijven bewaard. |
 | Afgelopen | Geen nieuwe antwoorden versturen; bestaande voortgang en resultaten blijven beschikbaar. |
 
-**Stoppen beëindigt het spel.** Gebruik pauzeren als je later verder wilt spelen. De ranglijst kan nog veranderen zolang open antwoorden op beoordeling wachten.
+**Stoppen beÃ«indigt het spel.** Gebruik pauzeren als je later verder wilt spelen. De ranglijst kan nog veranderen zolang open antwoorden op beoordeling wachten.
 
 ## Testen op een telefoon via wifi
 
@@ -158,9 +207,9 @@ In de uitgevoerde test was dat `192.168.2.13`. Vervang dit voorbeeld door jouw h
 php artisan serve --host=192.168.2.13 --port=8000
 ```
 
-Open daarna [http://192.168.2.13:8000](http://192.168.2.13:8000) op de telefoon. Sta PHP indien nodig toe op het **privénetwerk** in de Windows-firewall.
+Open daarna [http://192.168.2.13:8000](http://192.168.2.13:8000) op de telefoon. Sta PHP indien nodig toe op het **privÃ©netwerk** in de Windows-firewall.
 
-Open ook het beheergedeelte op de laptop via dit IP-adres. Ga naar `/beheer/vragen` en open de QR-code van een vraag. Controleer vóór het scannen dat de link hetzelfde IP-adres en poortnummer gebruikt. Een QR-code met `qr-game.test` of `localhost` verwijst op de telefoon niet automatisch naar de laptop.
+Open ook het beheergedeelte op de laptop via dit IP-adres. Ga naar `/beheer/vragen` en open de QR-code van een vraag. Controleer vÃ³Ã³r het scannen dat de link hetzelfde IP-adres en poortnummer gebruikt. Een QR-code met `qr-game.test` of `localhost` verwijst op de telefoon niet automatisch naar de laptop.
 
 Deze lokale test gebruikt HTTP. De browser kan daarom waarschuwen bij het versturen van gegevens. Gebruik lokale testgegevens; voor gebruik via internet is HTTPS met een geldig certificaat nodig. De ontwikkelserver is bedoeld voor lokaal testen.
 
@@ -172,6 +221,10 @@ De paden hieronder komen achter het adres van de website. Vervang `{game}` door 
 | --- | --- |
 | Homepage | `/` |
 | Inloggen organisator | `/beheer/inloggen` |
+| Accounts, alleen voor beheerders | `/beheer/accounts` |
+| Nieuw organisatoraccount, alleen voor beheerders | `/beheer/accounts/nieuw` |
+| Eigen spellen | `/beheer/spellen` |
+| Nieuw spel | `/beheer/spellen/nieuw` |
 | Dashboard | `/beheer` |
 | Vragen beheren | `/beheer/vragen` |
 | Open antwoorden beoordelen | `/beheer/nakijken` |
@@ -186,20 +239,45 @@ De paden hieronder komen achter het adres van de website. Vervang `{game}` door 
 | Map of bestand | Inhoud |
 | --- | --- |
 | `app/Http/Controllers/` | Verwerking van verzoeken van studenten en organisatoren. |
+| `app/Console/Commands/CreateAdministrator.php` | Eerste beheerder aanmaken of een bestaand account na bevestiging promoveren. |
+| `app/Http/Middleware/EnsureAccountAdministrator.php` | Toegang tot accountbeheer controleren. |
+| `app/Support/AccountRules.php` | Gedeelde validatieregels voor nieuwe accounts. |
+| `app/Services/OrganizerGameContext.php` | Bepaalt het gekozen spel voor de organisator en controleert of het spel van deze organisator is. |
 | `app/Models/` | Modellen voor onder andere spellen, vragen, deelnemers en antwoorden. |
 | `resources/views/` | Blade-pagina's voor de website. |
+| `resources/views/organizer/games/` | Overzicht van eigen spellen en formulier voor een nieuw spel. |
+| `resources/views/organizer/accounts/` | Accountoverzicht en formulier voor een nieuwe organisator. |
 | `resources/views/student/partials/nav.blade.php` | Navigatie voor de student. |
 | `public/css/qr-game.css` | Vormgeving van QR-Game. |
 | `public/js/student-answer.js` | Versturen van antwoorden en afhandeling van verzendproblemen. |
 | `routes/web.php` | Webroutes. |
 | `database/migrations/` | Opbouw van de database. |
-| `database/seeders/` | Aanmaken van begin- of testgegevens. |
+| `database/seeders/DatabaseSeeder.php` | Standaard testgebruiker; maakt geen speelbaar spel aan. |
+| `tests/Feature/OrganizerAccountsTest.php` | Automatische controles van accountbeheer en de nieuwe migratie. |
+| `phpunit.accounts.xml` | Aparte testconfiguratie voor accountbeheer. |
+
+## Automatische tests voor accountbeheer
+
+De accounttests gebruiken een aparte SQLite-database in het geheugen. Daarvoor moet de PHP-extensie `pdo_sqlite` beschikbaar zijn. De tests zijn bedoeld om onder andere toegangsrechten, validatie, wachtwoordopslag en behoud van bestaande gegevens bij de migratie te controleren.
+
+Voer vanuit de projectmap uit:
+
+```powershell
+php artisan config:clear
+php artisan test --configuration=phpunit.accounts.xml
+```
+
+De testklasse bevat 10 tests. Zonder `pdo_sqlite` worden ze overgeslagen. Een overgeslagen test is geen geslaagde test. Bewaar de uitvoer als bewijs van de werkelijk uitgevoerde controles.
 
 ## Controles en aandachtspunten
 
 Tijdens de ontwikkeling zijn onder andere antwoorden, handmatige beoordeling, ranglijst, CSV-export en foutpagina's in de browser gecontroleerd. Ook het opnieuw openen van een tabblad en het openen van een vraag via een QR-code op de telefoon zijn handmatig getest. Dit is geen bewijs dat alle mogelijke situaties of alle automatische tests zijn geslaagd.
 
-Voor oplevering moet de installatie op een aparte, lege database nog worden uitgevoerd, inclusief het voorbereiden van de spelgegevens. De bestaande database met resultaten moet daarbij behouden blijven.
+Het aanmaken van een nieuw spel en het kiezen van een bestaand spel zijn ook handmatig gecontroleerd. Een nieuw spel begon zonder vragen en deelnemers. De startknop was uitgeschakeld totdat er een vraag was toegevoegd.
+
+Het accountoverzicht is ook in de browser gecontroleerd: het beheerdersaccount en de organisatoren verschenen met hun rollen. Het bestaande demo-organisatoraccount had nog vier gekoppelde spellen.
+
+Een volledige installatie op een aparte, lege database is nog niet vastgelegd. Ook is er nog geen opgeslagen uitvoer van de automatische accounttests. Controleer bij de installatieproef het aanmaken van de eerste beheerder, een organisator, een spel en vragen. Gebruik daarvoor een aparte database zodat de bestaande resultaten behouden blijven.
 
 Praktische aandachtspunten:
 
